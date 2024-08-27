@@ -1,4 +1,4 @@
-package structs
+package echojwtmiddleware
 
 type JWK struct {
 	Alg     string   `json:"alg"`

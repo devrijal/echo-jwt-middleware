@@ -1,4 +1,4 @@
-package common
+package echojwtmiddleware
 
 import (
 	"crypto/rsa"
@@ -9,13 +9,13 @@ import (
 	"math/big"
 	"os"
 
-	"github.com/devrijal/echo-jwt-middleware/structs"
 	"github.com/go-resty/resty/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
-func GetMatchedKey(token *jwt.Token, keys []structs.JWK) (publicKey interface{}, err error) {
+// Find matched keys for the given token
+func GetMatchedKey(token *jwt.Token, keys []JWK) (publicKey interface{}, err error) {
 
 	kidInter, ok := token.Header["kid"]
 
@@ -77,7 +77,8 @@ func GetMatchedKey(token *jwt.Token, keys []structs.JWK) (publicKey interface{},
 	return publicKey, nil
 }
 
-func GetPublicKeys() (jwks structs.JWKS, err error) {
+// Get public keys from openid discovery endpoints
+func GetPublicKeys() (jwks JWKS, err error) {
 
 	client := resty.New()
 
@@ -98,7 +99,7 @@ func GetPublicKeys() (jwks structs.JWKS, err error) {
 	return jwks, err
 }
 
-func GetOpenIDConfig() (config *structs.OpenIDConfig, err error) {
+func GetOpenIDConfig() (config *OpenIDConfig, err error) {
 
 	provider_endpoint := os.Getenv("OPENID_PROVIDER_ENDPOINT")
 
@@ -131,6 +132,7 @@ func GetOpenIDConfig() (config *structs.OpenIDConfig, err error) {
 	return config, err
 }
 
+// Extract token from echo.Context
 func GetToken(c echo.Context) *jwt.Token {
 	return c.Get("user").(*jwt.Token)
 }
