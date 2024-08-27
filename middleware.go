@@ -3,12 +3,14 @@ package echojwtmiddleware
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 
-	"github.com/devrijal/echo-jwt-middleware/common"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/labstack/echo/v4"
 )
 
+// Generic middleware
 func KeycloakMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
@@ -27,7 +29,7 @@ func KeycloakMiddleware(next http.Handler) http.Handler {
 
 		tokenString := parts[1]
 
-		token, err := jwt.Parse(tokenString, GetMatchedKey)
+		token, err := jwt.Parse(tokenString, GetKey)
 
 		if err != nil || !token.Valid {
 
@@ -39,18 +41,40 @@ func KeycloakMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-var GetMatchedKey jwt.Keyfunc = func(token *jwt.Token) (pubKey interface{}, err error) {
-	jwks, err := common.GetPublicKeys()
+// Echo jwt.Keyfunc implementation.
+var GetKey jwt.Keyfunc = func(token *jwt.Token) (pubKey interface{}, err error) {
+	jwks, err := GetPublicKeys()
 
 	if err != nil {
 		return nil, err
 	}
 
-	pubKey, err = common.GetMatchedKey(token, jwks.Keys)
+	pubKey, err = GetMatchedKey(token, jwks.Keys)
 
 	if err != nil {
 		return pubKey, err
 	}
 
 	return pubKey, nil
+}
+
+// Echo middleware.Skipper implementation. Accept paths to skip arguments
+func Skipper(pathToSkips []string) func(c echo.Context) bool {
+
+	return func(c echo.Context) bool {
+
+		path := c.Request().URL.Path
+
+		for _, pattern := range pathToSkips {
+			re := regexp.MustCompile(pattern)
+
+			isMatch := re.MatchString(path)
+
+			if isMatch {
+				return true
+			}
+		}
+
+		return false
+	}
 }
