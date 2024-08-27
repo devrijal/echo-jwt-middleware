@@ -9,7 +9,7 @@ import (
 	"math/big"
 	"os"
 
-	"github.com/devrijal/jwt-middleware/structs"
+	"github.com/devrijal/echo-jwt-middleware/structs"
 	"github.com/go-resty/resty/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
