@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/devrijal/jwt-middleware/common"
+	"github.com/devrijal/echo-jwt-middleware/common"
 	"github.com/golang-jwt/jwt/v5"
 )
 
